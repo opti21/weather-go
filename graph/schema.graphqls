@@ -1,0 +1,16 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type CurrentWeather {
+  id: ID!
+  location: String!
+  condition: String!
+  zipcode: String!
+  temp: Float!
+  code: String!
+}
+
+type Query {
+  currentWeather(zipcode: String!): CurrentWeather
+}

@@ -1,5 +1,6 @@
 module github.com/opti21/weather-go
 
+// +heroku goVersion go1.17
 go 1.17
 
 require (

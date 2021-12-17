@@ -8,14 +8,34 @@ import (
 	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/mux"
 	"github.com/opti21/weather-go/graph"
 	"github.com/opti21/weather-go/graph/generated"
 	"github.com/opti21/weather-go/weather"
 )
 
+const defaultPort = "8080"
+
 func home(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Weather Go: get your weather in JSON and Grahql. Written in go")
+	fmt.Fprint(w, `<h1>Weather Go</h1>
+	<p>Get your weather in JSON <b>(/rest/{zip})</b> and Grahql <b>(/query)</b>.</p>
+	<p>Data provided by <a href="https://openweathermap.org/" target="_blank">OpenWeather</a>
+	<p>Written in go</p>
+	<h2>GraphQL example</h2>
+	<pre>
+		<code>
+		query {
+		  currentWeather(zipcode: "77001") {
+		    condition
+		    location
+		    zipcode
+		    temp
+		  }
+		}
+		</code>
+	</pre>
+	`)
 	fmt.Println("Home Endpoint hit")
 }
 
@@ -41,6 +61,9 @@ func getWeather(w http.ResponseWriter, r *http.Request) {
 
 func handleReqs() {
 	port := os.Getenv("PORT")
+	if port == "" {
+		port = defaultPort
+	}
 
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.HandleFunc("/", home)
@@ -48,7 +71,7 @@ func handleReqs() {
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
 
-	// myRouter.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	myRouter.Handle("/playground", playground.Handler("GraphQL playground", "/query"))
 	myRouter.Handle("/query", srv)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)

@@ -9,7 +9,6 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
 	"github.com/opti21/weather-go/graph"
 	"github.com/opti21/weather-go/graph/generated"
 	"github.com/opti21/weather-go/weather"
@@ -57,11 +56,5 @@ func handleReqs() {
 }
 
 func main() {
-	envErr := godotenv.Load()
-
-	if envErr != nil {
-		log.Fatal("Error loading .env file")
-	}
-
 	handleReqs()
 }

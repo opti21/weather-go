@@ -15,8 +15,6 @@ import (
 	"github.com/opti21/weather-go/weather"
 )
 
-const defaultPort = "8080"
-
 func home(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Weather Go: get your weather in JSON and Grahql. Written in go")
 	fmt.Println("Home Endpoint hit")
@@ -44,9 +42,6 @@ func getWeather(w http.ResponseWriter, r *http.Request) {
 
 func handleReqs() {
 	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort
-	}
 
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.HandleFunc("/", home)

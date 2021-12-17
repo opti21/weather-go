@@ -1,1 +1,1 @@
-web: bin/openweather-go
+web: weather-go

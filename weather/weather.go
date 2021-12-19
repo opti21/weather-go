@@ -23,8 +23,8 @@ type OpenWeatherApi struct {
 	Location string        `json:"name"`
 	Weather  []WeatherData `json:"weather"`
 	Temp     TempData      `json:"main"`
-	Message  string        `json:"message"`
-	Code     float64        `json:"cod,string"`
+	Message  string        `json:"message,omitempty"`
+	Code     float64        `json:"cod"`
 }
 
 type RequestError struct {

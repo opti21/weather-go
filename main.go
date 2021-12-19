@@ -51,8 +51,8 @@ func getWeather(w http.ResponseWriter, r *http.Request) {
 			Error string
 			Code  float64
 		}{
-			Error: fetchedWeather.Message,
-			Code: fetchedWeather.Code,
+			Error: weatherErr.Error(),
+			Code: 500,
 		}
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(wthErr)

@@ -16,15 +16,23 @@ type WeatherData struct {
 }
 
 type TempData struct {
-	Temp float32 `json:"temp"`
+	Temp float64 `json:"temp"`
 }
 
-type OpenWeatherApi struct {
+type OpenWeatherApiResponse struct {
 	Location string        `json:"name"`
 	Weather  []WeatherData `json:"weather"`
 	Temp     TempData      `json:"main"`
 	Message  string        `json:"message,omitempty"`
-	Code     float64        `json:"cod"`
+	Code     float64       `json:"cod,string"`
+}
+
+type Weather struct {
+	Location         string
+	CurrentCondition string
+	Temp             float64
+	Code             float64
+	Message          string
 }
 
 type RequestError struct {
@@ -33,11 +41,11 @@ type RequestError struct {
 }
 
 func (r *RequestError) Error() string {
-	return fmt.Sprintf("status %v: err %q", r.StatusCode, r.Err)
+	return fmt.Sprintf("OpenWeather Error: status %v: err %q", r.StatusCode, r.Err)
 }
 
 // Fetches weather from OpenWeather Api
-func FetchWeather(zipcode string) (OpenWeatherApi, error) {
+func FetchWeather(zipcode string) (Weather, error) {
 	apiKey := os.Getenv("OPEN_WEATHER_API")
 	url := fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?zip=%v,us&units=imperial&appid=%v", zipcode, apiKey)
 
@@ -66,28 +74,28 @@ func FetchWeather(zipcode string) (OpenWeatherApi, error) {
 		log.Fatal(readErr)
 	}
 
-	if res.StatusCode >= 200 && res.StatusCode <= 299 {
-		weather := OpenWeatherApi{}
-		jsonErr := json.Unmarshal(body, &weather)
+	apiResponse := OpenWeatherApiResponse{}
+	jsonErr := json.Unmarshal(body, &apiResponse)
 
-		if jsonErr != nil {
-			fmt.Println(err)
+	if jsonErr != nil {
+		fmt.Println(err)
+	}
+
+	if res.StatusCode >= 200 && res.StatusCode <= 299 {
+		weather := Weather{
+			Location:         apiResponse.Location,
+			CurrentCondition: apiResponse.Weather[0].Description,
+			Temp:             apiResponse.Temp.Temp,
+			Code:             apiResponse.Code,
 		}
 
 		fmt.Println(weather)
 		return weather, nil
 
 	} else {
-		weatherError := OpenWeatherApi{}
-		jsonErr := json.Unmarshal(body, &weatherError)
-
-		if jsonErr != nil {
-			log.Fatal(jsonErr)
-		}
-
-		return weatherError, &RequestError{
-			StatusCode: weatherError.Code,
-			Err: errors.New(weatherError.Message),
+		return Weather{}, &RequestError{
+			StatusCode: apiResponse.Code,
+			Err:        errors.New(apiResponse.Message),
 		}
 	}
 

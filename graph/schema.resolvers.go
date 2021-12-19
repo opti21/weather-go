@@ -24,9 +24,9 @@ func (r *queryResolver) CurrentWeather(ctx context.Context, zipcode string) (*mo
 
 	current := model.CurrentWeather{
 		Location:  fetchedWeather.Location,
-		Condition: fetchedWeather.Weather[0].Description,
+		Condition: fetchedWeather.CurrentCondition,
 		Zipcode:   zipcode,
-		Temp:      float64(fetchedWeather.Temp.Temp),
+		Temp:      fetchedWeather.Temp,
 	}
 	return &current, nil
 }

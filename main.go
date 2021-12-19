@@ -47,8 +47,15 @@ func getWeather(w http.ResponseWriter, r *http.Request) {
 	fetchedWeather, weatherErr := weather.FetchWeather(zip)
 
 	if  weatherErr != nil {
+		wthErr := struct{
+			Error string
+			Code  float64
+		}{
+			Error: fetchedWeather.Message,
+			Code: fetchedWeather.Code,
+		}
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(weatherErr)
+		json.NewEncoder(w).Encode(wthErr)
 	} else {
 		fmt.Println("Got weather")
 		fmt.Println(fetchedWeather)

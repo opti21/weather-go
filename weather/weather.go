@@ -23,15 +23,20 @@ type OpenWeatherApi struct {
 	Location string        `json:"name"`
 	Weather  []WeatherData `json:"weather"`
 	Temp     TempData      `json:"main"`
-	Code     string           `json:"cod"`
+	Message  string        `json:"message"`
+	Code     float64        `json:"cod,string"`
 }
 
-type OpenWeatherApiError struct {
-	Message string `json:"message"`
-	Code    string    `json:"cod"`
+type RequestError struct {
+	StatusCode float64
+	Err        error
 }
 
-// Fetches weather from OpenWeather Api 
+func (r *RequestError) Error() string {
+	return fmt.Sprintf("status %v: err %q", r.StatusCode, r.Err)
+}
+
+// Fetches weather from OpenWeather Api
 func FetchWeather(zipcode string) (OpenWeatherApi, error) {
 	apiKey := os.Getenv("OPEN_WEATHER_API")
 	url := fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?zip=%v,us&units=imperial&appid=%v", zipcode, apiKey)
@@ -73,14 +78,17 @@ func FetchWeather(zipcode string) (OpenWeatherApi, error) {
 		return weather, nil
 
 	} else {
-		weatherError := OpenWeatherApiError{}
+		weatherError := OpenWeatherApi{}
 		jsonErr := json.Unmarshal(body, &weatherError)
 
 		if jsonErr != nil {
 			log.Fatal(jsonErr)
 		}
 
-		return OpenWeatherApi{}, errors.New(weatherError.Message)
+		return weatherError, &RequestError{
+			StatusCode: weatherError.Code,
+			Err: errors.New(weatherError.Message),
+		}
 	}
 
 }

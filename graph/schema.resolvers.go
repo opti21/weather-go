@@ -17,7 +17,7 @@ func (r *queryResolver) CurrentWeather(ctx context.Context, zipcode string) (*mo
 	fetchedWeather, err := weather.FetchWeather(zipcode)
 
 	if err != nil {
-		graphql.AddErrorf(ctx, "Error fetching wether %q", err)
+		graphql.AddError(ctx, err)
 		return nil, gqlerror.Errorf("API Error")
 	}
 
@@ -27,7 +27,6 @@ func (r *queryResolver) CurrentWeather(ctx context.Context, zipcode string) (*mo
 		Condition: fetchedWeather.Weather[0].Description,
 		Zipcode:   zipcode,
 		Temp:      float64(fetchedWeather.Temp.Temp),
-		Code:      fetchedWeather.Code,
 	}
 	return &current, nil
 }

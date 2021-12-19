@@ -8,7 +8,6 @@ type CurrentWeather {
   condition: String!
   zipcode: String!
   temp: Float!
-  code: String!
 }
 
 type Query {
